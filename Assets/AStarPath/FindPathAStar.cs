@@ -88,6 +88,36 @@ public class FindPathAStar : MonoBehaviour
         Vector3 endLocation = new Vector3(locations[1].x * maze.scale, 0.0f, locations[1].z * maze.scale);
         goalNode = new PathMarker(new MapLocation(locations[1].x, locations[1].z),
             0.0f, 0.0f, 0.0f, Instantiate(end, endLocation, Quaternion.identity), null);
+
+        open.Clear();
+        closed.Clear();
+        open.Add(startNode);
+        lastPos = startNode;
+
+    }
+
+    void Search(PathMarker thisNode){
+        if(thisNode.Equals(goalNode)) { done = true; return; }
+
+        foreach(MapLocation dir in maze.directions){
+            MapLocation neighbour = dir + thisNode.location;
+            if(maze.map[neighbour.x, neighbour.z] == 1) continue;
+            if(neighbour.x < 1 || neighbour.x >= maze.width || neighbour.z < 1 || neighbour.z >= maze.depth) continue;
+            if(IsClosed(neighbour)) continue;
+
+            float G = Vector2.Distance(thisNode.location.ToVector(), neighbour.ToVector()) + thisNode.G;
+            float H = Vector2.Distance(neighbour.ToVector(), goalNode.location.ToVector());
+            float F = G + H;
+
+            GameObject pathBlock = Instantiate(pathP, new Vector3(neighbour.x * maze.scale, 0, neighbour.z * maze.scale), Quaternion.identity);
+        }
+    }
+
+    bool IsClosed(MapLocation marker){
+        foreach (PathMarker p in closed){
+            if (p.location.Equals(marker)) return true;
+        }
+        return false;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
